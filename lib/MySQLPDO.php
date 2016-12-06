@@ -55,4 +55,35 @@ class MySQLPDO{
             die('数据库连接失败');
         }
     }
+
+    //通过预处理方式执行sql，$batch表示是否批量处理
+    public function query($sql,$batch){
+        //取出成员属性中的数据并清空
+        $data=$batch?$this->data:array($this->data);
+        $this->data=array();
+        //通过预处理方式执行sql
+        $stmt=$this->db->prepare($sql);
+        foreach ($data as $v) {
+            if($stmt->execute($v)===false){
+                die('数据库操作失败');
+            }
+        }
+        return $stmt;
+    }
+
+    //保存操作数据
+    public function data($data){
+        $this->data=$data;
+        return $this;
+    }
+
+    //取得一行结果
+    public function fetchRow($sql){
+        return $this->query($sql)->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //取得所有结果
+    public function fetchAll($sql){
+        return $this->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
